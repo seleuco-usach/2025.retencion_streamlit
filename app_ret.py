@@ -41,7 +41,8 @@ tabla_ret=tabla_ret[tabla_ret['NIVEL_GLOBAL']!="DIPLOMADO"]
 tabla_ret_agrupada=(tabla_ret.groupby(['ANHO_ING',])
 .agg({'ret_1': 'mean', 
       'ret_2': 'mean', 
-      'ret_3': 'mean'})
+      'ret_3': 'mean',
+      'ret_4': 'mean'})
 .reset_index()
 )
 
@@ -49,7 +50,8 @@ tabla_ret_agrupada_carr=(tabla_ret.groupby(['ANHO_ING',
                                             'CODIGO_CARRERA_x', 'NIVEL_GLOBAL'])
 .agg({'ret_1': 'mean', 
       'ret_2': 'mean', 
-      'ret_3': 'mean'})
+      'ret_3': 'mean',
+      'ret_4': 'mean'})
 .reset_index()
 )
 #tabla_ret=tabla_ret[['ANHO_ING','ret_1', 
@@ -81,10 +83,12 @@ import altair as alt
 chart = (
     alt.Chart(tabla_ret_agrupada)
     .transform_fold(
-        ["ret_1", "ret_2", "ret_3"],
+        ["ret_1", 
+         "ret_2", 
+         "ret_3", "ret_4"],
         as_=["variable", "value"]
     )
-    .mark_line()
+    .mark_line(size = 4)
     .encode(
         x="ANHO_ING:O",
         y=alt.Y("value:Q"),
@@ -98,11 +102,11 @@ st.altair_chart(chart, use_container_width=True)
 
 
 tabla_ret_largo=tabla_ret_agrupada.melt(id_vars=['ANHO_ING'], 
-             value_vars=['ret_1', 'ret_2', 'ret_3'])
+             value_vars=['ret_1', 'ret_2', 'ret_3', 'ret_4'])
 
 tabla_ret_largo_carr=tabla_ret_agrupada_carr.melt(id_vars=['ANHO_ING', 
                                       'CODIGO_CARRERA_x', 'NIVEL_GLOBAL'], 
-             value_vars=['ret_1', 'ret_2', 'ret_3'])
+             value_vars=['ret_1', 'ret_2', 'ret_3', 'ret_4'])
 
 #ret_sel = st.radio("Selecciona la retención a visualizar:", 
  #        ('ret_1', 'ret_2', 'ret_3', "todo"), index=0)
@@ -120,11 +124,13 @@ ret_sel_carr = st.selectbox("Selecciona la carrera a visualizar:",
 
 tabla_ret_largo_filtrado_carr=tabla_ret_largo_carr[(tabla_ret_largo_carr['CODIGO_CARRERA_x']==ret_sel_carr)]
 
-chart_fil = alt.Chart(tabla_ret_largo_filtrado_carr).mark_line().encode(
+chart_fil = (alt.Chart(tabla_ret_largo_filtrado_carr)
+             .mark_line(size = 4)
+             .encode(
     x="ANHO_ING:O",
     y=alt.Y("value:Q", title = "Retención"),
     color="variable:N"
-)
+))
 
 st.altair_chart(chart_fil, use_container_width=True)
 
