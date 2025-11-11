@@ -106,7 +106,10 @@ tabla_ret_largo=tabla_ret_agrupada.melt(id_vars=['ANHO_ING'],
 
 tabla_ret_largo_carr=tabla_ret_agrupada_carr.melt(id_vars=['ANHO_ING', 
                                       'CODIGO_CARRERA_x', 'NIVEL_GLOBAL'], 
-             value_vars=['ret_1', 'ret_2', 'ret_3', 'ret_4'])
+             value_vars=['ret_1', 
+                         'ret_2', 
+                         'ret_3', 
+                         'ret_4'])
 
 #ret_sel = st.radio("Selecciona la retención a visualizar:", 
  #        ('ret_1', 'ret_2', 'ret_3', "todo"), index=0)

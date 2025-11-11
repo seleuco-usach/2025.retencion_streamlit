@@ -4,9 +4,9 @@ import pandas as pd
 import numpy as np
 from datetime import date
 
-from MAT import MAT   # Importa la variable directamente
+from MAT import MAT  # Importa la variable directamente
 
-19828443
+
 
 
 ####Tabla cohortes
@@ -59,6 +59,14 @@ np.where((COHORTES['ANHO_ING']!=COHORTES['ANHO_MAT']) &
          (COHORTES['ANHO_MAT']-COHORTES['ANHO_ING']==3) &
          (COHORTES['CODIGO_CARRERA_x']==COHORTES['CODIGO_CARRERA_y']),1,0))
 
+COHORTES['RET_4']=\
+np.where((COHORTES['ANHO_ING']!=COHORTES['ANHO_MAT']) &
+         (COHORTES['ANHO_MAT']-COHORTES['ANHO_ING']==4) &
+         (COHORTES['cod_plan_x']==COHORTES['cod_plan_y']),1,
+np.where((COHORTES['ANHO_ING']!=COHORTES['ANHO_MAT']) &
+         (COHORTES['ANHO_MAT']-COHORTES['ANHO_ING']==4) &
+         (COHORTES['CODIGO_CARRERA_x']==COHORTES['CODIGO_CARRERA_y']),1,0))
+
 (
 COHORTES[COHORTES['CODIGO_CARRERA_x']=="ARQ"]
 .groupby(['ANHO_ING',
@@ -67,7 +75,8 @@ COHORTES[COHORTES['CODIGO_CARRERA_x']=="ARQ"]
           'COH',
           'RET_1',
           'RET_2',
-          'RET_3'])['rut']
+          'RET_3',
+          'RET_4'])['rut']
 .nunique()
 #.agg(tot_coh = ('rut', 'nunique'),
 #     ret_1_num =('RET_1', 'sum')
@@ -117,18 +126,25 @@ COHORTES[COHORTES['RET_3']==1]
 .nunique()
 .reset_index(name='ret_3_n')
 )
-
+ret_4=(
+COHORTES[COHORTES['RET_4']==1]
+.groupby(['ANHO_ING', 'CODIGO_CARRERA_x'])['rut']
+.nunique()
+.reset_index(name='ret_4_n')
+)
 
 
 tabla_ret=(coh
 .merge(ret_1, on=['ANHO_ING', 'CODIGO_CARRERA_x'], how = 'left')
 .merge(ret_2, on=['ANHO_ING', 'CODIGO_CARRERA_x'], how = 'left')
 .merge(ret_3, on=['ANHO_ING', 'CODIGO_CARRERA_x'], how = 'left')
+.merge(ret_4, on=['ANHO_ING', 'CODIGO_CARRERA_x'], how = 'left')
 )
 
 tabla_ret['ret_1']=tabla_ret['ret_1_n']/tabla_ret['coh']
 tabla_ret['ret_2']=tabla_ret['ret_2_n']/tabla_ret['coh']
 tabla_ret['ret_3']=tabla_ret['ret_3_n']/tabla_ret['coh']
+tabla_ret['ret_4']=tabla_ret['ret_4_n']/tabla_ret['coh']
 
 ###NIVEL GLOBAL
 tabla_ret['NIVEL_GLOBAL']=np.where(tabla_ret['CODIGO_CARRERA_x']=="UNICIT", "UNICIT",
@@ -140,6 +156,7 @@ tabla_ret['NIVEL_GLOBAL']=np.where(tabla_ret['CODIGO_CARRERA_x']=="UNICIT", "UNI
 
 
 tabla_ret
+
 (
 set_with_dataframe(spreadsheet.
         add_worksheet(title="TABLA_MU_3", 
