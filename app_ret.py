@@ -14,8 +14,10 @@ import numpy as np
 st.title("Retencion USACH")
 
 # Entrada de texto
-nombre = st.text_input("¿Cuál es tu nombre?", "Invitado")
-st.write(f"La retención disminuye a medida que aumenta el año de ingreso")
+#nombre = st.text_input("¿Cuál es tu nombre?", "Invitado")
+st.write(f"A continuación se muestra la retención de estudiantes de la USACH. \
+        El indicador mide el porcentaje de estudiantes que continúan inscritos en la universidad después de su año de ingreso.\
+        Por tanto el indicador muestra el seguimiento de cada cohorte de ingreso.")
 
 # Generar y mostrar un gráfico
 st.subheader("Retencion 2007 - 2025")
