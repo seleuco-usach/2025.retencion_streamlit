@@ -98,9 +98,10 @@ chart = (
     )
 )
 
+tab1, tab2 = st.tabs(["Retención por nivel", "Retención por carrera"])
 
-
-st.altair_chart(chart, use_container_width=True)
+with tab1:
+    st.altair_chart(chart, use_container_width=True)
 
 
 tabla_ret_largo=tabla_ret_agrupada.melt(id_vars=['ANHO_ING'], 
@@ -127,6 +128,7 @@ ret_sel_carr = st.selectbox("Selecciona la carrera a visualizar:",
 
 #tabla_ret_largo_filtrado=tabla_ret_largo[tabla_ret_largo['variable']==ret_sel]
 
+
 tabla_ret_largo_filtrado_carr=tabla_ret_largo_carr[(tabla_ret_largo_carr['CODIGO_CARRERA_x']==ret_sel_carr)]
 
 chart_fil = (alt.Chart(tabla_ret_largo_filtrado_carr)
@@ -137,7 +139,9 @@ chart_fil = (alt.Chart(tabla_ret_largo_filtrado_carr)
     color="variable:N"
 ))
 
-st.altair_chart(chart_fil, use_container_width=True)
+with tab2:
+    st.altair_chart(chart_fil, use_container_width=True)
+    
 
 # Contador de clics
 #if "contador" not in st.session_state:
