@@ -128,7 +128,7 @@ ret_sel_carr = st.selectbox("Selecciona la carrera a visualizar:",
 tabla_ret_largo_filtrado_carr=tabla_ret_largo_carr[(tabla_ret_largo_carr['CODIGO_CARRERA_x']==ret_sel_carr)]
 
 chart_fil = (alt.Chart(tabla_ret_largo_filtrado_carr)
-             .mark_line(size = 4)
+             .mark_line(size = 2.5)
              .encode(
     x="ANHO_ING:O",
     y=alt.Y("value:Q", title = "Retención"),
