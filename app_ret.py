@@ -88,7 +88,7 @@ chart = (
          "ret_3", "ret_4"],
         as_=["variable", "value"]
     )
-    .mark_line(size = 4)
+    .mark_line(size = 2.5)
     .encode(
         x="ANHO_ING:O",
         y=alt.Y("value:Q"),
