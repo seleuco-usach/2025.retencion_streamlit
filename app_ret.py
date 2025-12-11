@@ -98,7 +98,7 @@ chart = (
     )
 )
 
-tab1, tab2 = st.tabs(["Retención por nivel", "Retención por carrera"])
+tab1, tab2 = st.tabs(["Retención Institucional", "Retención por carrera"])
 
 with tab1:
     st.altair_chart(chart, use_container_width=True)
