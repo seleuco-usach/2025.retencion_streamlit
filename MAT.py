@@ -78,10 +78,10 @@ MAT=pd.read_sql("""
                 g.GRATUIDAD,
                 f.TIPO AS CAE,
                 h.TIPO AS FSCU,
-                cc.COD_FAC,
-                cc.FACULTAD,
-                cc.COD_DEPTO,
-                cc.Columna2 AS depto,
+                c.COD_FAC,
+                c.FACULTAD,
+                c.COD_DEPTO_2_CR,
+                c.nombre_depto_cr,
                 mu.NAC,
                 COUNT(m.rut) AS Total,        
                 d.INGRESO_PERCAPITA_GRUPO_FA,
@@ -143,38 +143,38 @@ MAT=pd.read_sql("""
                 g.GRATUIDAD,
                 f.TIPO,
                 h.TIPO,
-                cc.COD_FAC,
-                cc.FACULTAD,
-                cc.COD_DEPTO,
-                cc.Columna2,
+                c.COD_FAC,
+                c.FACULTAD,
+                c.COD_DEPTO_2_CR,
+                c.nombre_depto_cr,
                 m.cod_via,
                 mu.NAC;""", con_1)
 
 
-def buscar_rut(MAT):
-    rut_buscado = int(input("Ingresa rut: "))
-    if rut_buscado in MAT['rut'].values:
-        print(MAT.loc[MAT['rut'] == rut_buscado, [
-            'rut', 
-            'ANHO_ING', 
-            'ANHO_MAT', 
-            'fecha_nac', 
-            'CODIGO_CARRERA', 
-            'cod_plan', 
-            'PTJE_NEM',
-            'GRUPO_DEPENDENCIA',
-            'via_ingreso',
-            'COH',
-            'COH_CIDI'
-        ]])
-    else:
-        print("no encontrado")
+#def buscar_rut(MAT):
+ #   rut_buscado = int(input("Ingresa rut: "))
+  #  if rut_buscado in MAT['rut'].values:
+   #     print(MAT.loc[MAT['rut'] == rut_buscado, [
+    #        'rut', 
+     #       'ANHO_ING', 
+      #      'ANHO_MAT', 
+       #     'fecha_nac', 
+        #    'CODIGO_CARRERA', 
+         #   'cod_plan', 
+          #  'PTJE_NEM',
+           # 'GRUPO_DEPENDENCIA',
+            #'via_ingreso',
+           # 'COH',
+            #'COH_CIDI'
+       # ]])
+    #else:
+     #   print("no encontrado")
 
 # Luego llama:
-buscar_rut(MAT)
+#buscar_rut(MAT)
 
 
-19828443
+#19828443
 
 ###NIVEL GLOBAL
 MAT['NIVEL_GLOBAL']=np.where(MAT['CODIGO_CARRERA']=="UNICIT", "UNICIT",
@@ -261,27 +261,27 @@ MAT['INFORMADO_SIES']=MAT['ANHO_SIES_RUT'].isin(informado_sies_2['ANHO_SIES_RUT'
 #else: print("no encontrado")
 
 
-def buscar_rut(MAT):
-    rut_buscado = int(input("Ingresa rut: "))
-    if rut_buscado in MAT['rut'].values:
-        print(MAT.loc[MAT['rut'] == rut_buscado, [
-            'rut', 
-            'ANHO_ING', 
-            'ANHO_MAT', 
-            'fecha_nac', 
-            'CODIGO_CARRERA', 
-            'cod_plan', 
-            'PTJE_NEM',
-            'GRUPO_DEPENDENCIA',
-            'via_ingreso',
-            'COH',
-            'COH_CIDI'
-        ]])
-    else:
-        print("no encontrado")
+#def buscar_rut(MAT):
+ #   rut_buscado = int(input("Ingresa rut: "))
+  #  if rut_buscado in MAT['rut'].values:
+   #     print(MAT.loc[MAT['rut'] == rut_buscado, [
+    #        'rut', 
+     #       'ANHO_ING', 
+      #      'ANHO_MAT', 
+       #     'fecha_nac', 
+        #    'CODIGO_CARRERA', 
+         #   'cod_plan', 
+          #  'PTJE_NEM',
+           # 'GRUPO_DEPENDENCIA',
+            #'via_ingreso',
+            #'COH',
+            #'COH_CIDI'
+        #]])
+    #else:
+     #   print("no encontrado")
 
 # Luego llama:
-buscar_rut(MAT)
+#buscar_rut(MAT)
 
 
 19828443

@@ -28,7 +28,10 @@ import numpy as np
 
 
 
-tabla_ret=pd.read_csv("tabla_ret.csv")
+tabla_ret=pd.read_csv("tabla_ret_2.csv")
+
+tabla_tit = pd.read_csv("tabla_tasa_oportuno.csv")
+
 
 tabla_ret['NIVEL_GLOBAL']=np.where(tabla_ret['CODIGO_CARRERA_x']=="UNICIT", "UNICIT",
     np.where(tabla_ret['CODIGO_CARRERA_x']=="MIDA", "MAGISTER",
@@ -39,6 +42,7 @@ tabla_ret['NIVEL_GLOBAL']=np.where(tabla_ret['CODIGO_CARRERA_x']=="UNICIT", "UNI
 
 
 tabla_ret=tabla_ret[tabla_ret['NIVEL_GLOBAL']!="DIPLOMADO"]
+tabla_tit=tabla_tit[tabla_tit['NIVEL_GLOBAL_2']!="DIPLOMADO"]
 
 tabla_ret_agrupada=(tabla_ret.groupby(['ANHO_ING',])
 .agg({'ret_1': 'mean', 
@@ -48,8 +52,11 @@ tabla_ret_agrupada=(tabla_ret.groupby(['ANHO_ING',])
 .reset_index()
 )
 
+tabla_tit_agrupada_carr=tabla_tit.groupby(['ANHO_ING','CODIGO_CARRERA','NIVEL_GLOBAL_2']).agg({'tasa': 'mean'}).reset_index()
+
 tabla_ret_agrupada_carr=(tabla_ret.groupby(['ANHO_ING',
-                                            'CODIGO_CARRERA_x', 'NIVEL_GLOBAL'])
+                                            'CODIGO_CARRERA_x', 
+                                            'NIVEL_GLOBAL'])
 .agg({'ret_1': 'mean', 
       'ret_2': 'mean', 
       'ret_3': 'mean',
@@ -87,7 +94,8 @@ chart = (
     .transform_fold(
         ["ret_1", 
          "ret_2", 
-         "ret_3", "ret_4"],
+         "ret_3", 
+         "ret_4"],
         as_=["variable", "value"]
     )
     .mark_line(size = 2.5)
@@ -98,21 +106,28 @@ chart = (
     )
 )
 
-tab1, tab2 = st.tabs(["Retención Institucional", "Retención por carrera"])
+tab1, tab2, tab3 = st.tabs(["Retención Institucional", "Retención por carrera", "Titulados oportunos por carrera"])
 
 with tab1:
     st.altair_chart(chart, use_container_width=True)
 
 
 tabla_ret_largo=tabla_ret_agrupada.melt(id_vars=['ANHO_ING'], 
-             value_vars=['ret_1', 'ret_2', 'ret_3', 'ret_4'])
-
-tabla_ret_largo_carr=tabla_ret_agrupada_carr.melt(id_vars=['ANHO_ING', 
-                                      'CODIGO_CARRERA_x', 'NIVEL_GLOBAL'], 
              value_vars=['ret_1', 
                          'ret_2', 
                          'ret_3', 
                          'ret_4'])
+
+
+tabla_ret_largo_carr=tabla_ret_agrupada_carr.melt(id_vars=[
+                                      'ANHO_ING', 
+                                      'CODIGO_CARRERA_x',
+                                      'NIVEL_GLOBAL'], 
+             value_vars=['ret_1', 
+                         'ret_2', 
+                         'ret_3', 
+                         'ret_4'])
+
 
 #ret_sel = st.radio("Selecciona la retención a visualizar:", 
  #        ('ret_1', 'ret_2', 'ret_3', "todo"), index=0)
@@ -120,6 +135,8 @@ tabla_ret_largo_carr=tabla_ret_agrupada_carr.melt(id_vars=['ANHO_ING',
 ret_sel_carr = st.selectbox("Selecciona la carrera a visualizar:", 
          tabla_ret['CODIGO_CARRERA_x'].unique())
 
+#ret_sel_sexo = st.selectbox("Selecciona sexo:", 
+ #        tabla_ret['sexo'].unique())
 
 
 #st.line_chart(tabla_ret)
@@ -130,6 +147,8 @@ ret_sel_carr = st.selectbox("Selecciona la carrera a visualizar:",
 
 
 tabla_ret_largo_filtrado_carr=tabla_ret_largo_carr[(tabla_ret_largo_carr['CODIGO_CARRERA_x']==ret_sel_carr)]
+tabla_tit_agrupada_carr=tabla_tit_agrupada_carr[(tabla_tit_agrupada_carr['CODIGO_CARRERA']==ret_sel_carr)]
+#tabla_ret_largo_filtrado_carr=tabla_ret_largo_carr[(tabla_ret_largo_carr['sexo']==ret_sel_sexo)]
 
 chart_fil = (alt.Chart(tabla_ret_largo_filtrado_carr)
              .mark_line(size = 2.5)
@@ -139,6 +158,15 @@ chart_fil = (alt.Chart(tabla_ret_largo_filtrado_carr)
     color="variable:N"
 ))
 
+
+chart_fil_2 = (alt.Chart(tabla_tit_agrupada_carr)
+             .mark_area(size = 2.5)
+             #.mark_line(size = 2.5)
+             .encode(
+    x="ANHO_ING:O",
+    y=alt.Y("tasa:Q", title = "Titulacion"),
+    color="variable:N"
+))
 with tab2:
     st.altair_chart(chart_fil, use_container_width=True)
     
@@ -155,3 +183,11 @@ with tab2:
 # Despedida
 #st.markdown("---")
 #st.write("Gracias por probar esta demo de Streamlit.")
+
+
+with tab3:
+    st.altair_chart(chart_fil_2, use_container_width=True)
+    
+
+    
+    

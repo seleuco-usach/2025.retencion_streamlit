@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Personas</title>
+</head>
+<body>
+    <h1>Lista de personas</h1>
+
+    <ul>
+        {% for p in personas %}
+            <li>{{ p.nombre }} - {{ p.edad }} años</li>
+        {% empty %}
+            <li>No hay personas</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Agregar persona</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        <input type="text" name="nombre" placeholder="Nombre" required>
+        <input type="number" name="edad" placeholder="Edad" required>
+        <button type="submit">Guardar</button>
+    </form>
+</body>
+</html>
