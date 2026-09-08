@@ -8,12 +8,12 @@ from MAT import MAT  # Importa la variable directamente
 
 
 
-
 ####Tabla cohortes
 TABLA_COH=MAT.loc[MAT['COH_CIDI'] == 1, ['rut',
                                     'RUT_ANHO_PLAN',
                                     'ANHO_ING',  
                                     'Tipo_Carrera',
+                                    'nombre_depto_cr',
                                     'INFORMADO_SIES',
                                     'Duración_Total',
                                     'Nivel_Carrera',
@@ -100,8 +100,7 @@ resultado['tasa_ret_1']=resultado['ret_1_agg']/resultado['tot']
 
 
 ###cohortes
-coh=(
-COHORTES
+coh=(COHORTES
 .groupby(['ANHO_ING', 'sexo','CODIGO_CARRERA_x'])['rut']
 .nunique()
 .reset_index(name='coh')
@@ -155,17 +154,22 @@ tabla_ret['NIVEL_GLOBAL']=np.where(tabla_ret['CODIGO_CARRERA_x']=="UNICIT", "UNI
     np.where(tabla_ret['CODIGO_CARRERA_x'].str[0:3]=="DIP","DIPLOMADO",
     np.where(tabla_ret['CODIGO_CARRERA_x'].str[0:3]=="POS","POSTITUTLO","PREGRADO"))))))
 
+# (
+# tabla_ret[(tabla_ret['NIVEL_GLOBAL']=="PREGRADO") & (tabla_ret['ANHO_ING']>2023)]
+# .groupby(['ANHO_ING','CODIGO_CARRERA_x','NIVEL_GLOBAL'])[['coh','ret_1_n']]
+# .sum()
+# .reset_index()
+# .to_clipboard()
+# )
 
-tabla_ret
+# (
+# set_with_dataframe(spreadsheet.
+#         add_worksheet(title="TABLA_MU_3", 
+#                       rows=5000, cols= 10), 
+#                       tabla_ret[tabla_ret['NIVEL_GLOBAL']=="PREGRADO"])
 
-(
-set_with_dataframe(spreadsheet.
-        add_worksheet(title="TABLA_MU_3", 
-                      rows=5000, cols= 10), 
-                      tabla_ret[tabla_ret['NIVEL_GLOBAL']=="PREGRADO"])
+# )
 
-)
-
-tabla_ret.to_csv("tabla_ret_2.csv", index=False)
+tabla_ret.to_csv("tabla_ret_3.csv", index=False)
 
 # %%

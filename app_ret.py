@@ -28,7 +28,7 @@ import numpy as np
 
 
 
-tabla_ret=pd.read_csv("tabla_ret_2.csv")
+tabla_ret=pd.read_csv("tabla_ret_3.csv")
 
 tabla_tit = pd.read_csv("tabla_tasa_oportuno.csv")
 
@@ -98,7 +98,7 @@ chart = (
          "ret_4"],
         as_=["variable", "value"]
     )
-    .mark_line(size = 2.5)
+    .mark_circle(size = 100.5)
     .encode(
         x="ANHO_ING:O",
         y=alt.Y("value:Q"),
@@ -151,7 +151,7 @@ tabla_tit_agrupada_carr=tabla_tit_agrupada_carr[(tabla_tit_agrupada_carr['CODIGO
 #tabla_ret_largo_filtrado_carr=tabla_ret_largo_carr[(tabla_ret_largo_carr['sexo']==ret_sel_sexo)]
 
 chart_fil = (alt.Chart(tabla_ret_largo_filtrado_carr)
-             .mark_line(size = 2.5)
+             .mark_circle(size = 100.5)
              .encode(
     x="ANHO_ING:O",
     y=alt.Y("value:Q", title = "Retención"),
@@ -163,7 +163,7 @@ chart_fil_2 = (alt.Chart(tabla_tit_agrupada_carr)
              .mark_area(size = 2.5)
              #.mark_line(size = 2.5)
              .encode(
-    x="ANHO_ING:O",
+    x="anho_op_arriba:O",
     y=alt.Y("tasa:Q", title = "Titulacion"),
     color="variable:N"
 ))

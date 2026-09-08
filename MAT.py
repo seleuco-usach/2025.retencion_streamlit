@@ -6,7 +6,7 @@ Created on Fri May 30 10:54:08 2025
 @author: xenomorfo
 """
 
-# %%
+
 import pyodbc
 import pandas as pd
 import numpy as np
@@ -22,24 +22,36 @@ con_1 = pyodbc.connect(
 
 print("Conexión exitosa")
 
-####listado de tablas
-cursor_1 = con_1.cursor()
-cursor_1.execute("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.\
-                 TABLES WHERE TABLE_TYPE = 'BASE TABLE';")
 
 
-for t in cursor_1.fetchall():
-    print(t)
-    
 ####listado de campos
 
-cursor_1 = con_1.cursor()
-columnas=cursor_1.execute("SELECT COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.\
-                          COLUMNS WHERE TABLE_NAME='CPP_DR2';")
+# cursor_1 = con_1.cursor()
+# columnas=cursor_1.execute("SELECT COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.\
+#                           COLUMNS WHERE TABLE_NAME='DEMRE_E_2014_2025';")
 
-for c in columnas.fetchall():
-    print(c)
+# for c in columnas.fetchall():
+#     print(c)
 
+
+# mat_per = pd.read_sql("""SELECT 
+#                       m.rut, 
+#                       m.nombres,
+#                       m.ap_paterno,
+#                       m.sexo,
+#                       m.nacionalidad,
+#                       m.cod_plan,
+#                       CODIGO_CARRERA=cod_carr_prog,
+#                       m.cod_carr_prog,
+#             LEFT(ingreso_plan, 4) AS ANHO_ING,
+#             LEFT(periodo_matricula, 4) AS ANHO_MAT,
+#             RIGHT(ingreso_plan, 2) AS periodo_ingreso,
+#             CONCAT(m.rut, '-',LEFT(m.ingreso_plan, 4)) AS ID,
+#             CONCAT(m.rut, '-', LEFT(m.ingreso_plan, 4), '-', m.cod_plan) AS RUT_ANHO_PLAN,
+#             CONCAT(LEFT(m.ingreso_plan, 4), '-',m.cod_plan) AS ANHO_PLAN
+#                     FROM MATRICULA_V1_042026_PARA_TODO m""", con_1)
+
+#mat_per.drop_duplicates()
 
 MAT=pd.read_sql("""
             SELECT 
@@ -53,15 +65,17 @@ MAT=pd.read_sql("""
                 LEFT(periodo_matricula, 4) AS ANHO_MAT,
                 CODIGO_CARRERA=cod_carr_prog,
                 LEFT(ingreso_plan, 4) AS ANHO_ING,
+                RIGHT(ingreso_plan, 2) AS periodo_ingreso,
                 CONCAT(m.rut, '-',LEFT(m.ingreso_plan, 4)) AS ID,
                 CONCAT(m.rut, '-', LEFT(m.ingreso_plan, 4), '-', m.cod_plan) AS RUT_ANHO_PLAN,
-                CONCAT(LEFT(ingreso_plan, 4), '-',m.cod_plan) AS ANHO_PLAN,
+                CONCAT(LEFT(m.ingreso_plan, 4), '-',m.cod_plan) AS ANHO_PLAN,
                 CONCAT(c.SIES, '-', m.rut) AS SIES_RUT,
                 CONCAT(LEFT(m.ingreso_plan, 4),'-' ,c.SIES, '-', m.rut) AS ANHO_SIES_RUT,
                 m.via_ingreso,
                 m.cod_via,
                 m.region,
                 m.fecha_nac,
+                m.plan_estudio,
                 d.GRUPO_DEPENDENCIA,
                 d.INGRESO_PERCAPITA_GRUPO_FA,
                 d.PUNTAJE_PONDERADO,
@@ -75,23 +89,19 @@ MAT=pd.read_sql("""
                 o.[Cine-F_13_Área],
                 o.Duración_Total,
                 o.Nivel_Carrera,
+                o.Modalidad,
+                o.Requisito_Ingreso,
                 g.GRATUIDAD,
                 f.TIPO AS CAE,
                 h.TIPO AS FSCU,
-                c.COD_FAC,
+                cc.COD_FAC,
+                cc.COD_DEPTO,
+                cc.Columna2 AS depto,
                 c.FACULTAD,
-                c.COD_DEPTO_2_CR,
                 c.nombre_depto_cr,
-                mu.NAC,
-                COUNT(m.rut) AS Total,        
-                d.INGRESO_PERCAPITA_GRUPO_FA,
-                d.PUNTAJE_PONDERADO,
-                d.MATEMATICA,
-                d.COMP_LECT,
-                d.PTJE_NEM,
-                d.PTJE_RANKING
-            FROM MATRICULA_V2_082025_PARA_TODO m
-            LEFT JOIN DEMRE_E_2014_2025 d 
+                mu.NAC
+            FROM MATRICULA_V1_082026_PARA_TODO m
+            LEFT JOIN D_E_14_26 d 
             ON CONCAT(m.rut, '-',LEFT(m.ingreso_plan, 4))=d.ID_ANHO
             LEFT JOIN CPP_DR2 c
             ON CONCAT(LEFT(periodo_matricula,4), '-',m.cod_plan)=c.ANHO_PLAN
@@ -106,75 +116,9 @@ MAT=pd.read_sql("""
             LEFT JOIN centro_costo cc
             ON cod_carr_prog = [COD CARRERA]
             LEFT JOIN TABLA_MU mu
-            ON CONCAT(LEFT(m.ingreso_plan, 4),'-' ,c.SIES, '-', m.rut) = CONCAT(mu.ANHO_MU, '-', mu.COD_SIES,'-', mu.N_DOC)
-            GROUP BY
-                m.rut,
-                m.nombres,
-                m.ap_paterno,
-                m.sexo,
-                m.nacionalidad,
-                m.cod_plan,
-                m.carrera_programa,
-                LEFT(periodo_matricula, 4),
-                CONCAT(m.rut, LEFT(m.ingreso_plan, 4)),
-                CONCAT(m.rut, '-', LEFT(m.ingreso_plan, 4), '-', m.cod_plan),
-                m.cod_carr_prog,
-                CONCAT(LEFT(ingreso_plan, 4), '-',m.cod_plan),
-                CONCAT(ANHO, '_', SIES),
-                CONCAT(c.SIES, '-', m.rut),
-                CONCAT(LEFT(m.ingreso_plan, 4),'-',c.SIES, '-', m.rut),
-                m.ingreso_plan,
-                m.via_ingreso,
-                m.region,
-                m.fecha_nac,
-                d.GRUPO_DEPENDENCIA,
-                d.INGRESO_PERCAPITA_GRUPO_FA,
-                d.PUNTAJE_PONDERADO,
-                d.MATEMATICA,
-                d.COMP_LECT,
-                d.PTJE_NEM,
-                d.PTJE_RANKING,
-                c.SIES,
-                o.Tipo_Carrera,
-                o.Jornada,
-                o.[Cine-F_13_Área],
-                o.Duración_Total,
-                o.Nivel_Carrera,
-                g.GRATUIDAD,
-                f.TIPO,
-                h.TIPO,
-                c.COD_FAC,
-                c.FACULTAD,
-                c.COD_DEPTO_2_CR,
-                c.nombre_depto_cr,
-                m.cod_via,
-                mu.NAC;""", con_1)
+            ON CONCAT(LEFT(m.ingreso_plan, 4),'-' ,c.SIES, '-', m.rut) = CONCAT(mu.ANHO_MU, '-', mu.COD_SIES,'-', mu.N_DOC)""", con_1)
 
-
-#def buscar_rut(MAT):
- #   rut_buscado = int(input("Ingresa rut: "))
-  #  if rut_buscado in MAT['rut'].values:
-   #     print(MAT.loc[MAT['rut'] == rut_buscado, [
-    #        'rut', 
-     #       'ANHO_ING', 
-      #      'ANHO_MAT', 
-       #     'fecha_nac', 
-        #    'CODIGO_CARRERA', 
-         #   'cod_plan', 
-          #  'PTJE_NEM',
-           # 'GRUPO_DEPENDENCIA',
-            #'via_ingreso',
-           # 'COH',
-            #'COH_CIDI'
-       # ]])
-    #else:
-     #   print("no encontrado")
-
-# Luego llama:
-#buscar_rut(MAT)
-
-
-#19828443
+MAT = MAT.drop_duplicates()
 
 ###NIVEL GLOBAL
 MAT['NIVEL_GLOBAL']=np.where(MAT['CODIGO_CARRERA']=="UNICIT", "UNICIT",
@@ -244,220 +188,174 @@ informado_sies_2=pd.read_sql("""SELECT
             
 MAT['INFORMADO_SIES']=MAT['ANHO_SIES_RUT'].isin(informado_sies_2['ANHO_SIES_RUT']).astype(int)
 
+# MAT[['ANHO_MAT','NIVEL_GLOBAL', 'carrera_programa','cod_plan', 'SIES']]
+
+# MAT[(MAT['ANHO_MAT']==2024) & 
+#     (MAT['NIVEL_GLOBAL']=="PREGRADO")][[
+#         'rut', 
+#         'ap_paterno',
+#         'nombres',
+#         'cod_plan',
+#         'SIES']]
 
 #rut_buscado=int(input("Ingresa rut:"))
 
 
-###busqueda rut
-#if rut_buscado in MAT['rut'].values:
- #   print(MAT.loc[MAT['rut']==rut_buscado, 
-  #                            ['rut', 
-   #                            'ANHO_ING',
-    #                           'ANHO_MAT',
-     #                          'fecha_nac',
-      #                         'CODIGO_CARRERA',
-       #                        'cod_plan',
-        #                       'SIES']])
-#else: print("no encontrado")
+##busqueda rut
+# if rut_buscado in MAT['rut'].values:
+#    print(MAT.loc[MAT['rut']==rut_buscado, 
+#                              ['rut', 
+#                               'ANHO_ING',
+#                               'ANHO_MAT',
+#                               'fecha_nac',
+#                               'CODIGO_CARRERA',
+#                               'cod_plan',
+#                               'SIES']])
+# else: print("no encontrado")
+
+# MAT[['via_ingreso','cod_via']]
+
+# (
+# MAT[(MAT['ANHO_ING']>2021) & (MAT['cod_via']==50)]
+# .groupby(['via_ingreso',
+#              'cod_via',
+#              'carrera_programa',
+#              'primer_anio',
+#              'NIVEL_GLOBAL',
+#              'Jornada',
+#              'Modalidad',
+#              'ANHO_MAT'])['rut']
+# .nunique()
+# .reset_index()
+# .to_clipboard()
+# )
+# # def buscar_rut(MAT):
+# #    rut_buscado = int(input("Ingresa rut: "))
+# #    if rut_buscado in MAT['rut'].values:
+# #        print(MAT.loc[MAT['rut'] == rut_buscado, [
+# #            'rut', 
+# #            'ANHO_ING', 
+# #            'ANHO_MAT', 
+# #            'fecha_nac', 
+# #            'CODIGO_CARRERA', 
+# #            'cod_plan', 
+# #            'SIES',
+# #            'GRUPO_DEPENDENCIA',
+# #             'via_ingreso',
+# #             'COH'
+# #         ]])
+# #     else:
+# #        print("no encontrado")
+
+# # Luego llama:
+# # buscar_rut(MAT)
 
 
-#def buscar_rut(MAT):
- #   rut_buscado = int(input("Ingresa rut: "))
-  #  if rut_buscado in MAT['rut'].values:
-   #     print(MAT.loc[MAT['rut'] == rut_buscado, [
-    #        'rut', 
-     #       'ANHO_ING', 
-      #      'ANHO_MAT', 
-       #     'fecha_nac', 
-        #    'CODIGO_CARRERA', 
-         #   'cod_plan', 
-          #  'PTJE_NEM',
-           # 'GRUPO_DEPENDENCIA',
-            #'via_ingreso',
-            #'COH',
-            #'COH_CIDI'
-        #]])
-    #else:
-     #   print("no encontrado")
-
-# Luego llama:
-#buscar_rut(MAT)
-
-
-19828443
-#COHORTES.loc[COHORTES['COH']==1, ['ANHO_ING',
-#                                  'CODIGO_CARRERA_x', 
- #                                 'RET_1']]
+# #COHORTES.loc[COHORTES['COH']==1, ['ANHO_ING',
+# #                                  'CODIGO_CARRERA_x', 
+#  #                                 'RET_1']]
  
 
-#####ret
-# COHORTES[COHORTES['CODIGO_CARRERA_x'].isin(["PEDEDFIS", 
-#                         "PEDQUIMBIO", 
-#                         "PEDBIOQUIM",
-#                         "PEDINGLES"]) & (COHORTES['ANHO_ING']>2014) &(COHORTES['COH']==1)]\
-#     .groupby(['CODIGO_CARRERA_x',
-#                  'sexo',
-#                  'RET_1',
-#                  'RET_2',
-#                  'RET_3',
-#                  'ANHO_ING',
-#                  'SIES',
-#                  'NIVEL_GLOBAL'])['rut'].size().to_clipboard()
+# #####ret
+# # COHORTES[COHORTES['CODIGO_CARRERA_x'].isin(["PEDEDFIS", 
+# #                         "PEDQUIMBIO", 
+# #                         "PEDBIOQUIM",
+# #                         "PEDINGLES"]) & (COHORTES['ANHO_ING']>2014) &(COHORTES['COH']==1)]\
+# #     .groupby(['CODIGO_CARRERA_x',
+# #                  'sexo',
+# #                  'RET_1',
+# #                  'RET_2',
+# #                  'RET_3',
+# #                  'ANHO_ING',
+# #                  'SIES',
+# #                  'NIVEL_GLOBAL'])['rut'].size().to_clipboard()
 
 
 
-# COHORTES[
-#     (COHORTES['NIVEL_GLOBAL']=="PREGRADO") &
-#     (COHORTES['Tipo_Carrera']=="Plan Regular") &
-#          (COHORTES['ANHO_ING']>2021)]\
-# .groupby(['CODIGO_CARRERA_x', 
-#           'INFORMADO_SIES',
-#           'Tipo_Carrera',
-#           'Duración_Total',
-#           'Nivel_Carrera',
-#           'RET_1',
-#           'RET_2',
-#           'ANHO_ING'])['rut'].size()
+# # COHORTES[
+# #     (COHORTES['NIVEL_GLOBAL']=="PREGRADO") &
+# #     (COHORTES['Tipo_Carrera']=="Plan Regular") &
+# #          (COHORTES['ANHO_ING']>2021)]\
+# # .groupby(['CODIGO_CARRERA_x', 
+# #           'INFORMADO_SIES',
+# #           'Tipo_Carrera',
+# #           'Duración_Total',
+# #           'Nivel_Carrera',
+# #           'RET_1',
+# #           'RET_2',
+# #           'ANHO_ING'])['rut'].size()
 
 
-MAT[(MAT['SIES']==999) & 
-    (MAT['primer_anio']==1) & (MAT['NIVEL_GLOBAL']=="PREGRADO")]\
-    .groupby(['INFORMADO_SIES','ANHO_ING']).size().unstack()
+# MAT[(MAT['SIES']==999) & 
+#     (MAT['primer_anio']==1) & (MAT['NIVEL_GLOBAL']=="PREGRADO")]\
+#     .groupby(['INFORMADO_SIES','ANHO_ING']).size().unstack()
     
 
 
-MAT[(MAT['ANHO_MAT']==2024) &
-    (MAT['NIVEL_GLOBAL']=="PREGRADO")]\
-    .groupby(['rut','SIES', 
-              'via_ingreso','NIVEL_GLOBAL',
-              'INFORMADO_SIES','Tipo_Carrera','ANHO_MAT'])\
-        .size().to_clipboard()
+# MAT[(MAT['ANHO_MAT']==2024) &
+#     (MAT['NIVEL_GLOBAL']=="PREGRADO")]\
+#     .groupby(['rut','SIES', 
+#               'via_ingreso','NIVEL_GLOBAL',
+#               'INFORMADO_SIES','Tipo_Carrera','ANHO_MAT'])\
+#         .size().to_clipboard()
         
 
-###Número de matriculas por rut unico
-MAT[(MAT['ANHO_MAT']>2020) & 
-    (MAT['NIVEL_GLOBAL']=="PREGRADO")]\
-    .groupby(['ANHO_MAT',
-              'COD_DEPTO',
-              'depto',
-              'COD_FAC',
-              'FACULTAD'])['rut']\
-    .nunique()
+# ###Número de matriculas por rut unico
+# MAT[(MAT['ANHO_MAT']>2020) & 
+#     (MAT['NIVEL_GLOBAL']=="PREGRADO")]\
+#     .groupby(['ANHO_MAT',
+#               'COD_DEPTO',
+#               'depto',
+#               'COD_FAC',
+#               'FACULTAD'])['rut']\
+#     .nunique()
     
-(
- MAT[(MAT['ANHO_MAT']>2020)]
-    .groupby(['ANHO_MAT', 
-              'FACULTAD',
-              'NIVEL_GLOBAL'])['rut']\
-    .nunique()
-    .unstack()
-    .to_clipboard()
-    )
+# (
+#  MAT[(MAT['ANHO_MAT']>2020)]
+#     .groupby(['ANHO_MAT', 
+#               'FACULTAD',
+#               'NIVEL_GLOBAL'])['rut']\
+#     .nunique()
+#     .unstack()
+#     .to_clipboard()
+#     )
     
-(    
-MAT[(MAT['ANHO_MAT']>2020) & 
-    (MAT['NIVEL_GLOBAL']=="PREGRADO") &
-    (MAT['CODIGO_CARRERA']=="BACHI")]
-    .groupby(['ANHO_MAT'])['rut']
-    .nunique()
-    )
+# (    
+# MAT[(MAT['ANHO_MAT']>2020) & 
+#     (MAT['NIVEL_GLOBAL']=="PREGRADO") &
+#     (MAT['CODIGO_CARRERA']=="BACHI")]
+#     .groupby(['ANHO_MAT'])['rut']
+#     .nunique()
+#     )
 
-(
-MAT.groupby(['cod_plan',
-             'SIES'])['rut']
-.nunique()
-.to_clipboard()
-)
+# (
+# MAT.groupby(['cod_plan',
+#              'SIES'])['rut']
+# .nunique()
+# .to_clipboard()
+# )
 
-(
-MAT[MAT['CODIGO_CARRERA']=="MAGCM"]
-.groupby(['ANHO_ING',
-          'sexo',
-          'CODIGO_CARRERA',
-          'cod_plan',
-          'COH_CIDI',
-          'COH',
-          'SIES',
-          'ANHO_MAT'])['rut']
-.nunique()
-.reset_index(name='Total')
-.to_clipboard()
-)
+# (
+# MAT[MAT['CODIGO_CARRERA']=="MAGCM"]
+# .groupby(['ANHO_ING',
+#           'sexo',
+#           'CODIGO_CARRERA',
+#           'cod_plan',
+#           'COH_CIDI',
+#           'COH',
+#           'SIES',
+#           'ANHO_MAT'])['rut']
+# .nunique()
+# .reset_index(name='Total')
+# .to_clipboard()
+# )
 
-(
-MAT[(MAT['NIVEL_GLOBAL']=="MAGISTER") | 
-    (MAT['NIVEL_GLOBAL']=="DOCTORADO")]
-.groupby([ 'cod_plan',
-          'CODIGO_CARRERA',
-          'NIVEL_GLOBAL',
-          'FACULTAD'])['rut']
-.nunique()
-)
-
-
-
-
-
-rut = MAT.loc[MAT['CODIGO_CARRERA'] == "MAGCM", 'rut'].drop_duplicates().tolist()
-
-
-rut_2 = []
-for i in MAT['rut']:
-    if i in rut:
-        print(i)
-        rut_2.append(i)
-
-pd.DataFrame(rut_2).drop_duplicates()
-
-(
-MAT[MAT['rut'].isin(rut)][['rut', 
-                           'CODIGO_CARRERA', 
-                           'sexo',
-                           'NIVEL_GLOBAL',
-                           'ANHO_ING',
-                           'ANHO_MAT',
-                           'COH',
-                           'COH_CIDI']]
-.drop_duplicates()
-.to_clipboard()
-)
-
-(
-MAT[MAT['ANHO_MAT']==2024]
-.assign(id = MAT['ANHO_MAT']
-        .astype(str) + '-' + MAT['cod_plan']
-        .astype(str))
-.groupby(['id','cod_plan','ANHO_MAT','NIVEL_GLOBAL'])['rut']
-.nunique()
-.reset_index(name= "n_distinct(RUT)")
-.to_clipboard()
-)
-
-########times ranking
-(
-MAT[MAT['ANHO_ING']==2024]
-.assign(id = MAT['ANHO_ING']
-        .astype(str) + '-' + MAT['cod_plan']
-        .astype(str))
-.groupby(['NIVEL_GLOBAL','sexo','ANHO_ING', 'Tipo_Carrera'])['rut']
-.nunique()
-.reset_index(name= "n_distinct(RUT)")
-.to_clipboard()
-)
-
-(
-MAT[(MAT['ANHO_ING']==2024) & 
-    (MAT['NIVEL_GLOBAL']!="DIPLOMADO") &
-    (MAT['NIVEL_GLOBAL']!="POSTITUTLO")]
-.assign(id = MAT['ANHO_ING']
-        .astype(str) + '-' + MAT['cod_plan']
-        .astype(str))
-.groupby(['NIVEL_GLOBAL',
-          'sexo','ANHO_ING', 
-          'Tipo_Carrera',
-          'cod_plan'])['rut']
-.nunique()
-.reset_index(name= "n_distinct(RUT)")
-#.to_clipboard()
-)
-# %%
+# (
+# MAT[(MAT['NIVEL_GLOBAL']=="MAGISTER") | 
+#     (MAT['NIVEL_GLOBAL']=="DOCTORADO")]
+# .groupby([ 'cod_plan',
+#           'CODIGO_CARRERA',
+#           'NIVEL_GLOBAL',
+#           'FACULTAD'])['rut']
+# .nunique()
+# )
