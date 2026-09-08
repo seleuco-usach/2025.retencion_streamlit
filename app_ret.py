@@ -28,7 +28,7 @@ import numpy as np
 
 
 
-tabla_ret=pd.read_csv("tabla_ret_3.csv")
+tabla_ret=pd.read_csv("tabla_ret_4.csv")
 
 tabla_tit = pd.read_csv("tabla_tasa_oportuno.csv")
 
