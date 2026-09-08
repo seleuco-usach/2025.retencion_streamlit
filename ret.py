@@ -11,7 +11,7 @@ from MAT import MAT  # Importa la variable directamente
 ####Tabla cohortes
 TABLA_COH=MAT.loc[MAT['COH_CIDI'] == 1, ['rut',
                                     'RUT_ANHO_PLAN',
-                                    'ANHO_ING',  
+                                    'ANHO_ING', 'SIES',
                                     'Tipo_Carrera',
                                     'nombre_depto_cr',
                                     'INFORMADO_SIES',
@@ -101,44 +101,44 @@ resultado['tasa_ret_1']=resultado['ret_1_agg']/resultado['tot']
 
 ###cohortes
 coh=(COHORTES
-.groupby(['ANHO_ING', 'sexo','CODIGO_CARRERA_x'])['rut']
+.groupby(['ANHO_ING', 'sexo','CODIGO_CARRERA_x','SIES_x'])['rut']
 .nunique()
 .reset_index(name='coh')
 )
 ####ret_1
 ret_1=(
 COHORTES[COHORTES['RET_1']==1]
-.groupby(['ANHO_ING', 'sexo','CODIGO_CARRERA_x'])['rut']
+.groupby(['ANHO_ING', 'sexo','CODIGO_CARRERA_x','SIES_x'])['rut']
 .nunique()
 .reset_index(name='ret_1_n')
 )
 ####ret_2
 ret_2=(
 COHORTES[COHORTES['RET_2']==1]
-.groupby(['ANHO_ING','sexo', 'CODIGO_CARRERA_x'])['rut']
+.groupby(['ANHO_ING','sexo', 'CODIGO_CARRERA_x','SIES_x'])['rut']
 .nunique()
 .reset_index(name='ret_2_n')
 )
 ####ret_3
 ret_3=(
 COHORTES[COHORTES['RET_3']==1]
-.groupby(['ANHO_ING', 'sexo','CODIGO_CARRERA_x'])['rut']
+.groupby(['ANHO_ING', 'sexo','CODIGO_CARRERA_x','SIES_x'])['rut']
 .nunique()
 .reset_index(name='ret_3_n')
 )
 ret_4=(
 COHORTES[COHORTES['RET_4']==1]
-.groupby(['ANHO_ING', 'sexo','CODIGO_CARRERA_x'])['rut']
+.groupby(['ANHO_ING', 'sexo','CODIGO_CARRERA_x','SIES_x'])['rut']
 .nunique()
 .reset_index(name='ret_4_n')
 )
 
 
 tabla_ret=(coh
-.merge(ret_1, on=['ANHO_ING', 'sexo','CODIGO_CARRERA_x'], how = 'left')
-.merge(ret_2, on=['ANHO_ING', 'sexo','CODIGO_CARRERA_x'], how = 'left')
-.merge(ret_3, on=['ANHO_ING', 'sexo','CODIGO_CARRERA_x'], how = 'left')
-.merge(ret_4, on=['ANHO_ING', 'sexo','CODIGO_CARRERA_x'], how = 'left')
+.merge(ret_1, on=['ANHO_ING', 'sexo','CODIGO_CARRERA_x','SIES_x'], how = 'left')
+.merge(ret_2, on=['ANHO_ING', 'sexo','CODIGO_CARRERA_x','SIES_x'], how = 'left')
+.merge(ret_3, on=['ANHO_ING', 'sexo','CODIGO_CARRERA_x','SIES_x'], how = 'left')
+.merge(ret_4, on=['ANHO_ING', 'sexo','CODIGO_CARRERA_x','SIES_x'], how = 'left')
 )
 
 tabla_ret['ret_1']=tabla_ret['ret_1_n']/tabla_ret['coh']
